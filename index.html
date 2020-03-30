@@ -1,0 +1,1424 @@
+<html>
+  <head>
+    <link rel="icon" href="favicon.png" />
+    <style>
+      body {
+        overflow-y: hidden;
+      }
+      #chart {
+        width: 1000vw;
+        height: 90vh;
+        margin-top: 4%;
+      }
+      #legend {
+        width: 15vw;
+        height: 10vw;
+        position: fixed;
+        right: 10%;
+        top: 20%;
+      }
+      #axes {
+        width: 5vw;
+        height: 90vh;
+        position: fixed;
+        left: -1.2%;
+        top: 7%;
+      }
+      #head {
+        font-size: large;
+        position: fixed;
+        left: 50%;
+        transform: translateX(-50%);
+        top: 2%;
+        margin-top: 0;
+        display: block;
+      }
+    </style>
+    <style type="text/css">
+      /* Chart.js */
+      @keyframes chartjs-render-animation {
+        from {
+          opacity: 0.99;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      .chartjs-render-monitor {
+        animation: chartjs-render-animation 1ms;
+      }
+      .chartjs-size-monitor,
+      .chartjs-size-monitor-expand,
+      .chartjs-size-monitor-shrink {
+        position: absolute;
+        direction: ltr;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        overflow: hidden;
+        pointer-events: none;
+        visibility: hidden;
+        z-index: -1;
+      }
+      .chartjs-size-monitor-expand > div {
+        position: absolute;
+        width: 1000000px;
+        height: 1000000px;
+        left: 0;
+        top: 0;
+      }
+      .chartjs-size-monitor-shrink > div {
+        position: absolute;
+        width: 200%;
+        height: 200%;
+        left: 0;
+        top: 0;
+      }
+    </style>
+  </head>
+  <body cz-shortcut-listen="true">
+    <div class="row">
+      <p class="text-center" id="head">Covid-19 Cases: Countrywise Analysis</p>
+    </div>
+    <div class="row">
+      <canvas id="chart"></canvas>
+      <canvas id="axes"></canvas>
+      <canvas id="legend"></canvas>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+    <script>
+      var heads = [
+        "Total_Recovered",
+        "Active_Cases",
+        "Critical",
+        "Total_Deaths"
+      ];
+      var colors = ["green", "yellow", "orange", "grey"];
+      var canv = document.getElementById("chart");
+      canv.height = canv.scrollHeight;
+      canv.width = canv.scrollWidth;
+      var ctx = canv.getContext("2d");
+      var canv_2 = document.getElementById("axes");
+      canv_2.height = canv_2.scrollHeight;
+      canv_2.width = canv_2.scrollWidth;
+      var dest_ctx = canv_2.getContext("2d");
+      var canv_3 = document.getElementById("legend");
+      canv_3.height = canv_3.scrollHeight;
+      canv_3.width = canv_3.scrollWidth;
+      var leg_ctx = canv_3.getContext("2d");
+
+      var sticky_axis_y = {
+        beforeDraw: function(chartInstance) {
+          console.log(chartInstance);
+          var yScale = chartInstance.scales["y-axis-0"];
+          var chart_img = chartInstance.canvas;
+          if (chartInstance.options.sticky_axis_y) {
+            var sec_key = Object.keys(chartInstance.scales)[1];
+            var ticks = chartInstance.scales[sec_key].ticks;
+            var dim = chartInstance.chartArea;
+            leg_ctx.clearRect(0, 0, canv_3.width, canv_3.height);
+            dest_ctx.clearRect(0, 0, canv_2.width, canv_2.height);
+            dest_ctx.fillStyle = "white";
+            leg_ctx.fillStyle = "white";
+            leg_ctx.fillRect(0, 0, 5000, 5000);
+            dest_ctx.fillRect(0, 0, 5000, 5000);
+            leg_ctx.fillStyle = "black";
+            dest_ctx.fillStyle = "black";
+            ctx.textAlign = "right";
+            ticks.forEach((element, i) => {
+              dest_ctx.fillText(
+                String(element),
+                dim.left * 0.7,
+                dim.top + 20 + ((dim.bottom - dim.top) * i) / (ticks.length - 1)
+              );
+            });
+            leg_ctx.font = "20px Ariel";
+            colors.forEach((col, i) => {
+              leg_ctx.fillStyle = col;
+              leg_ctx.fillRect(
+                canv_3.width * 0.05,
+                20 + (i * (canv_3.height - 40)) / colors.length,
+                canv_3.width * 0.2,
+                canv_3.width * 0.1
+              );
+              leg_ctx.fillStyle = "black";
+              leg_ctx.fillText(
+                heads[i].replace("_", " "),
+                canv_3.width * 0.35,
+                25 +
+                  canv_3.height * 0.09 +
+                  (i * (canv_3.height - 40)) / colors.length
+              );
+            });
+            return;
+          }
+        }
+      };
+
+      Chart.pluginService.register(sticky_axis_y);
+
+      var chart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: [
+            "USA",
+
+            "Italy",
+
+            "China",
+
+            "Spain",
+
+            "Germany",
+
+            "France",
+
+            "Iran",
+
+            "UK",
+
+            "Switzerland",
+
+            "Netherlands",
+
+            "Belgium",
+
+            "S. Korea",
+
+            "Turkey",
+
+            "Austria",
+
+            "Canada",
+
+            "Portugal",
+
+            "Norway",
+
+            "Brazil",
+
+            "Israel",
+
+            "Australia",
+
+            "Sweden",
+
+            "Czechia",
+
+            "Ireland",
+
+            "Malaysia",
+
+            "Denmark",
+
+            "Chile",
+
+            "Luxembourg",
+
+            "Ecuador",
+
+            "Japan",
+
+            "Poland",
+
+            "Romania",
+
+            "Pakistan",
+
+            "Russia",
+
+            "Philippines",
+
+            "Thailand",
+
+            "Saudi Arabia",
+
+            "Indonesia",
+
+            "South Africa",
+
+            "Finland",
+
+            "Greece",
+
+            "India",
+
+            "Iceland",
+
+            "Panama",
+
+            "Dominican Republic",
+
+            "Peru",
+
+            "Mexico",
+
+            "Singapore",
+
+            "Argentina",
+
+            "Serbia",
+
+            "Slovenia",
+
+            "Croatia",
+
+            "Diamond Princess",
+
+            "Colombia",
+
+            "Estonia",
+
+            "Hong Kong",
+
+            "Qatar",
+
+            "Egypt",
+
+            "UAE",
+
+            "Iraq",
+
+            "New Zealand",
+
+            "Algeria",
+
+            "Bahrain",
+
+            "Morocco",
+
+            "Ukraine",
+
+            "Lithuania",
+
+            "Lebanon",
+
+            "Armenia",
+
+            "Hungary",
+
+            "Latvia",
+
+            "Bulgaria",
+
+            "Andorra",
+
+            "Bosnia and Herzegovina",
+
+            "Costa Rica",
+
+            "Slovakia",
+
+            "Tunisia",
+
+            "Uruguay",
+
+            "Taiwan",
+
+            "Kazakhstan",
+
+            "Moldova",
+
+            "North Macedonia",
+
+            "Jordan",
+
+            "Kuwait",
+
+            "San Marino",
+
+            "Burkina Faso",
+
+            "Cyprus",
+
+            "Albania",
+
+            "Azerbaijan",
+
+            "Vietnam",
+
+            "Réunion",
+
+            "Oman",
+
+            "Ivory Coast",
+
+            "Faeroe Islands",
+
+            "Ghana",
+
+            "Malta",
+
+            "Uzbekistan",
+
+            "Senegal",
+
+            "Cameroon",
+
+            "Cuba",
+
+            "Brunei ",
+
+            "Afghanistan",
+
+            "Venezuela",
+
+            "Sri Lanka",
+
+            "Nigeria",
+
+            "Honduras",
+
+            "Palestine",
+
+            "Channel Islands",
+
+            "Mauritius",
+
+            "Guadeloupe",
+
+            "Cambodia",
+
+            "Belarus",
+
+            "Martinique",
+
+            "Georgia",
+
+            "Montenegro",
+
+            "Kyrgyzstan",
+
+            "DRC",
+
+            "Bolivia",
+
+            "Trinidad and Tobago",
+
+            "Rwanda",
+
+            "Gibraltar",
+
+            "Mayotte",
+
+            "Paraguay",
+
+            "Liechtenstein",
+
+            "Aruba",
+
+            "Bangladesh",
+
+            "Monaco",
+
+            "French Guiana",
+
+            "Kenya",
+
+            "Isle of Man",
+
+            "Madagascar",
+
+            "Macao",
+
+            "Guatemala",
+
+            "Barbados",
+
+            "Uganda",
+
+            "Jamaica",
+
+            "French Polynesia",
+
+            "Zambia",
+
+            "Togo",
+
+            "El Salvador",
+
+            "Bermuda",
+
+            "Ethiopia",
+
+            "Congo",
+
+            "Mali",
+
+            "Niger",
+
+            "Djibouti",
+
+            "Maldives",
+
+            "Guinea",
+
+            "Haiti",
+
+            "New Caledonia",
+
+            "Bahamas",
+
+            "Tanzania",
+
+            "Cayman Islands",
+
+            "Equatorial Guinea",
+
+            "Eritrea",
+
+            "Mongolia",
+
+            "Dominica",
+
+            "Namibia",
+
+            "Saint Martin",
+
+            "Greenland",
+
+            "Myanmar",
+
+            "Syria",
+
+            "Grenada",
+
+            "Saint Lucia",
+
+            "Eswatini",
+
+            "Curaçao",
+
+            "Guyana",
+
+            "Laos",
+
+            "Libya",
+
+            "Mozambique",
+
+            "Seychelles",
+
+            "Suriname",
+
+            "Angola",
+
+            "Gabon",
+
+            "Zimbabwe",
+
+            "Antigua and Barbuda",
+
+            "Cabo Verde",
+
+            "Sudan",
+
+            "Benin",
+
+            "Vatican City",
+
+            "Sint Maarten",
+
+            "Nepal",
+
+            "Fiji",
+
+            "Mauritania",
+
+            "Montserrat",
+
+            "St. Barth",
+
+            "Gambia",
+
+            "Nicaragua",
+
+            "Bhutan",
+
+            "Turks and Caicos",
+
+            "CAR",
+
+            "Chad",
+
+            "Liberia",
+
+            "Somalia",
+
+            "MS Zaandam",
+
+            "Anguilla",
+
+            "Belize",
+
+            "British Virgin Islands",
+
+            "Guinea-Bissau",
+
+            "Saint Kitts and Nevis",
+
+            "Papua New Guinea",
+
+            "St. Vincent Grenadines",
+
+            "Timor-Leste"
+          ],
+          datasets: [
+            {
+              label: "Total Recovered",
+              data: [
+                4435,
+                13030,
+                75448,
+                14709,
+                9211,
+                7202,
+                12391,
+                135,
+                1595,
+                250,
+                1359,
+                5033,
+                105,
+                479,
+                573,
+                43,
+                7,
+                6,
+                132,
+                226,
+                16,
+                11,
+                5,
+                388,
+                1,
+                75,
+                40,
+                3,
+                424,
+                7,
+                206,
+                29,
+                64,
+                42,
+                97,
+                66,
+                64,
+                31,
+                10,
+                52,
+                95,
+                135,
+                4,
+                3,
+                16,
+                4,
+                212,
+                91,
+                42,
+                10,
+                52,
+                603,
+                10,
+                20,
+                118,
+                48,
+                132,
+                58,
+                143,
+                56,
+                31,
+                272,
+                13,
+                6,
+                1,
+                30,
+                30,
+                34,
+                1,
+                14,
+                1,
+                8,
+                3,
+                2,
+                2,
+                0,
+                39,
+                20,
+                2,
+                3,
+                18,
+                67,
+                6,
+                23,
+                15,
+                33,
+                15,
+                25,
+                1,
+                23,
+                4,
+                70,
+                2,
+                2,
+                7,
+                27,
+                5,
+                4,
+                34,
+                2,
+                39,
+                11,
+                3,
+                3,
+                18,
+                0,
+                0,
+                17,
+                21,
+                32,
+                0,
+                18,
+                0,
+                0,
+                2,
+                0,
+                1,
+                0,
+                14,
+                0,
+                1,
+                0,
+                1,
+                15,
+                1,
+                6,
+                1,
+                0,
+                0,
+                10,
+                10,
+                0,
+                0,
+                2,
+                0,
+                0,
+                1,
+                0,
+                2,
+                1,
+                0,
+                0,
+                0,
+                0,
+                13,
+                0,
+                1,
+                0,
+                1,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                2,
+                0,
+                2,
+                0,
+                0,
+                0,
+                1,
+                0,
+                2,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                2,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0
+              ],
+              backgroundColor: "green"
+            },
+            {
+              label: "Active Cases",
+              data: [
+                134944,
+                73880,
+                2691,
+                58598,
+                52343,
+                30366,
+                23278,
+                18159,
+                12934,
+                9845,
+                9046,
+                4398,
+                8981,
+                8223,
+                5682,
+                5800,
+                4252,
+                4114,
+                4100,
+                3920,
+                3574,
+                2790,
+                2564,
+                2047,
+                2322,
+                2057,
+                1889,
+                1863,
+                1388,
+                1833,
+                1566,
+                1554,
+                1462,
+                1305,
+                1284,
+                1225,
+                1107,
+                1247,
+                1219,
+                1065,
+                902,
+                883,
+                961,
+                817,
+                818,
+                828,
+                629,
+                709,
+                686,
+                709,
+                655,
+                99,
+                682,
+                656,
+                519,
+                585,
+                437,
+                509,
+                362,
+                457,
+                449,
+                223,
+                440,
+                459,
+                452,
+                398,
+                391,
+                361,
+                346,
+                324,
+                327,
+                309,
+                309,
+                312,
+                302,
+                303,
+                256,
+                263,
+                259,
+                250,
+                238,
+                188,
+                196,
+                187,
+                193,
+                169,
+                190,
+                169,
+                182,
+                144,
+                160,
+                89,
+                145,
+                149,
+                135,
+                115,
+                128,
+                132,
+                91,
+                114,
+                77,
+                105,
+                107,
+                104,
+                90,
+                106,
+                104,
+                85,
+                82,
+                62,
+                92,
+                73,
+                84,
+                84,
+                71,
+                80,
+                74,
+                70,
+                51,
+                63,
+                55,
+                56,
+                49,
+                28,
+                44,
+                37,
+                40,
+                42,
+                39,
+                27,
+                23,
+                33,
+                33,
+                29,
+                30,
+                29,
+                23,
+                24,
+                20,
+                20,
+                19,
+                17,
+                17,
+                18,
+                4,
+                16,
+                14,
+                15,
+                13,
+                13,
+                11,
+                12,
+                12,
+                12,
+                11,
+                9,
+                11,
+                8,
+                10,
+                8,
+                9,
+                8,
+                9,
+                5,
+                7,
+                8,
+                8,
+                8,
+                8,
+                8,
+                5,
+                6,
+                6,
+                7,
+                5,
+                5,
+                6,
+                6,
+                6,
+                4,
+                5,
+                3,
+                5,
+                5,
+                3,
+                3,
+                4,
+                4,
+                3,
+                3,
+                3,
+                3,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                1,
+                0,
+                1
+              ],
+              backgroundColor: "yellow"
+            },
+            {
+              label: "Critical Cases",
+              data: [
+                2970,
+                3906,
+                742,
+                4165,
+                1979,
+                4632,
+                3206,
+                163,
+                301,
+                972,
+                867,
+                59,
+                568,
+                187,
+                120,
+                89,
+                91,
+                296,
+                74,
+                28,
+                255,
+                45,
+                59,
+                73,
+                113,
+                7,
+                25,
+                58,
+                56,
+                3,
+                31,
+                11,
+                8,
+                1,
+                11,
+                12,
+                0,
+                7,
+                32,
+                66,
+                0,
+                25,
+                36,
+                0,
+                40,
+                1,
+                19,
+                0,
+                25,
+                23,
+                26,
+                15,
+                29,
+                10,
+                5,
+                6,
+                0,
+                2,
+                0,
+                1,
+                0,
+                1,
+                1,
+                0,
+                2,
+                4,
+                6,
+                6,
+                3,
+                8,
+                10,
+                1,
+                6,
+                1,
+                10,
+                9,
+                0,
+                0,
+                33,
+                1,
+                3,
+                12,
+                16,
+                0,
+                3,
+                3,
+                23,
+                3,
+                0,
+                3,
+                0,
+                1,
+                1,
+                4,
+                8,
+                0,
+                0,
+                2,
+                1,
+                0,
+                6,
+                5,
+                0,
+                4,
+                0,
+                0,
+                1,
+                10,
+                1,
+                2,
+                12,
+                1,
+                1,
+                0,
+                0,
+                3,
+                0,
+                0,
+                0,
+                0,
+                3,
+                0,
+                0,
+                1,
+                0,
+                0,
+                2,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              backgroundColor: "red"
+            },
+            {
+              label: "Total Deaths",
+              data: [
+                2475,
+                10779,
+                3300,
+                6803,
+                541,
+                2606,
+                2640,
+                1228,
+                300,
+                771,
+                431,
+                152,
+                131,
+                86,
+                65,
+                119,
+                25,
+                136,
+                15,
+                17,
+                110,
+                16,
+                46,
+                35,
+                72,
+                7,
+                21,
+                58,
+                54,
+                22,
+                43,
+                14,
+                8,
+                71,
+                7,
+                8,
+                114,
+                2,
+                11,
+                39,
+                27,
+                2,
+                24,
+                39,
+                18,
+                16,
+                3,
+                20,
+                13,
+                11,
+                6,
+                10,
+                10,
+                3,
+                4,
+                1,
+                40,
+                3,
+                42,
+                1,
+                31,
+                4,
+                26,
+                10,
+                7,
+                10,
+                3,
+                13,
+                ,
+                8,
+                6,
+                6,
+                2,
+                ,
+                8,
+                1,
+                3,
+                1,
+                2,
+                6,
+                3,
+                ,
+                22,
+                12,
+                6,
+                10,
+                4,
+                ,
+                ,
+                ,
+                1,
+                ,
+                5,
+                ,
+                2,
+                ,
+                6,
+                3,
+                1,
+                4,
+                3,
+                1,
+                1,
+                3,
+                1,
+                2,
+                3,
+                4,
+                ,
+                ,
+                1,
+                ,
+                1,
+                ,
+                8,
+                1,
+                3,
+                ,
+                ,
+                ,
+                3,
+                ,
+                ,
+                5,
+                1,
+                ,
+                1,
+                ,
+                ,
+                ,
+                1,
+                ,
+                ,
+                1,
+                ,
+                ,
+                1,
+                ,
+                ,
+                ,
+                ,
+                1,
+                1,
+                ,
+                ,
+                ,
+                ,
+                ,
+                ,
+                ,
+                1,
+                ,
+                ,
+                ,
+                ,
+                ,
+                ,
+                ,
+                ,
+                1,
+                ,
+                ,
+                ,
+                1,
+                1,
+                ,
+                ,
+                ,
+                ,
+                ,
+                2,
+                1,
+                1,
+                ,
+                1,
+                1,
+                ,
+                ,
+                ,
+                ,
+                ,
+                ,
+                ,
+                ,
+                1,
+                1,
+                ,
+                ,
+                ,
+                ,
+                ,
+                ,
+                ,
+                ,
+                ,
+                ,
+                ,
+                ,
+                ,
+                ,
+              ],
+              backgroundColor: "grey"
+            }
+          ]
+        },
+        options: {
+          responsive: false,
+          legend: {
+            display: false,
+            position: "right" // place legend on the right side of chart
+          },
+          scales: {
+            xAxes: [
+              {
+                stacked: true // this should be set to make the bars stacked
+              }
+            ],
+            yAxes: [
+              {
+                stacked: true // this also..
+              }
+            ]
+          },
+          sticky_axis_y: [
+            {
+              is: true
+            }
+          ]
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,229 @@
+    <style>
+      body {
+        overflow-y: hidden;
+      }
+      #chart {
+        width: 1000vw;
+        height: 90vh;
+        margin-top: 4%;
+      }
+      #legend {
+        width: 15vw;
+        height: 10vw;
+        position: fixed;
+        right: 10%;
+        top: 20%;
+      }
+      #axes {
+        width: 5vw;
+        height: 90vh;
+        position: fixed;
+        left: -1.2%;
+        top: 7%;
+      }
+      #head {
+        font-size: large;
+        position: fixed;
+        left: 50%;
+        transform: translateX(-50%);
+        top: 2%;
+        margin-top: 0;
+        display: block;
+      }
+    </style>
+    <style type="text/css">
+      /* Chart.js */
+      @keyframes chartjs-render-animation {
+        from {
+          opacity: 0.99;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      .chartjs-render-monitor {
+        animation: chartjs-render-animation 1ms;
+      }
+      .chartjs-size-monitor,
+      .chartjs-size-monitor-expand,
+      .chartjs-size-monitor-shrink {
+        position: absolute;
+        direction: ltr;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        overflow: hidden;
+        pointer-events: none;
+        visibility: hidden;
+        z-index: -1;
+      }
+      .chartjs-size-monitor-expand > div {
+        position: absolute;
+        width: 1000000px;
+        height: 1000000px;
+        left: 0;
+        top: 0;
+      }
+      .chartjs-size-monitor-shrink > div {
+        position: absolute;
+        width: 200%;
+        height: 200%;
+        left: 0;
+        top: 0;
+      }
+    </style>
+  </head>
+  <body cz-shortcut-listen="true">
+    <div class="row">
+      <p class="text-center" id="head">Covid-19 Cases: Countrywise Analysis</p>
+    </div>
+    <div class="row">
+      <canvas id="chart"></canvas>
+      <canvas id="axes"></canvas>
+      <canvas id="legend"></canvas>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+    <script>
+      var heads = ["Total_Recovered","Active_Cases","Critical","Total_Deaths"];
+      var colors = ["green", "yellow", "red", "black"];
+      var canv = document.getElementById("chart");
+      canv.height = canv.scrollHeight;
+      canv.width = canv.scrollWidth;
+      var ctx = canv.getContext("2d");
+      var canv_2 = document.getElementById("axes");
+      canv_2.height = canv_2.scrollHeight;
+      canv_2.width = canv_2.scrollWidth;
+      var dest_ctx = canv_2.getContext("2d");
+      var canv_3 = document.getElementById("legend");
+      canv_3.height = canv_3.scrollHeight;
+      canv_3.width = canv_3.scrollWidth;
+      var leg_ctx = canv_3.getContext("2d");
+
+      var sticky_axis_y = {
+        beforeDraw: function(chartInstance) {
+          var totes = [{{bar_data.Total_Cases}}]
+          var ticks = chartInstance.scales["y-axis-0"].ticks;
+          var x-ticks = chartInstance.scales["x-axis-0"]._labelItems;
+          var chart_img = chartInstance.canvas;
+          if (chartInstance.options.sticky_axis_y) {
+            var dim = chartInstance.chartArea;
+            leg_ctx.clearRect(0, 0, canv_3.width, canv_3.height);
+            dest_ctx.clearRect(0, 0, canv_2.width, canv_2.height);
+            dest_ctx.fillStyle = "white";
+            leg_ctx.fillStyle = "white";
+            leg_ctx.fillRect(0, 0, 5000, 5000);
+            leg_ctx.fillStyle = "black";
+            dest_ctx.fillRect(0, 0, 5000, 5000);
+            dest_ctx.fillStyle = "black";
+            ctx.textAlign = "right";
+            ticks.forEach((element, i) => {
+              dest_ctx.fillText(
+                String(element),
+                dim.left * 0.7,
+                dim.top + 20 + ((dim.bottom - dim.top) * i) / (ticks.length - 1)
+              );
+            });
+            leg_ctx.font = "20px Ariel";
+            colors.forEach((col, i) => {
+              leg_ctx.fillStyle = col;
+              leg_ctx.fillRect(
+                canv_3.width * 0.05,
+                20 + (i * (canv_3.height - 40)) / colors.length,
+                canv_3.width * 0.2,
+                canv_3.width * 0.1
+              );
+              leg_ctx.fillStyle = "black";
+              leg_ctx.fillText(
+                heads[i].replace("_", " "),
+                canv_3.width * 0.35,
+                25 +
+                  canv_3.height * 0.09 +
+                  (i * (canv_3.height - 40)) / colors.length
+              );
+            });
+
+            ctx.font = "30px Ariel"
+            x-ticks.forEach((elem,i) => {
+              ctx.fillText(totes[i], elem.x, dim.bottom)
+            })
+            return;
+          }
+        }
+      };
+
+      Chart.pluginService.register(sticky_axis_y);
+
+              
+      var chart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: [{{#each bar_data.Country}}
+                      "{{this}}",
+                    {{/each}}
+                  ],
+          datasets: [
+            { 
+              label: "Total Recovered",
+              data: [{{bar_data.Total_Recovered}}],
+              backgroundColor: colors[0]
+            },
+            { 
+              label: "Active Cases",
+              data: [{{bar_data.Active_Cases}}],
+              backgroundColor: colors[1]
+            },
+            { 
+              label: "Critical Cases",
+              data: [{{bar_data.Critical}}],
+              backgroundColor: colors[2]
+            },
+            { 
+              label: "Total Deaths",
+              data: [{{bar_data.Total_Deaths}}],
+              backgroundColor: colors[3]
+            },
+          ]
+        },
+        options: {
+          responsive: false,
+          legend: {
+            position: "right",
+            display: false // place legend on the right side of chart
+          },
+          scales: {
+            xAxes: [
+              {
+                stacked: true // this should be set to make the bars stacked
+              }
+            ],
+            yAxes: [
+              {
+                stacked: true // this also..
+              }
+            ]
+          },
+          sticky_axis_y: [
+            {
+              is: true
+            }
+          ]
+        }
+      });
+
+      
+      //grab the context from your destination canvas
+
+      //call its drawImage() function passing it the source canvas directly
+      
+    </script>
+
+{{!-- 
+<h1> okay okay </h1>
+{{bar_data.Critical}} 
+{{#each heads}}
+    Index: 
+      [{{this}}]<br>
+{{/each}} --}}
+
+

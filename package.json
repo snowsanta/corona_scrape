@@ -1,0 +1,36 @@
+{
+  "name": "corona_scrape",
+  "version": "1.0.0",
+  "description": "An interactive visualisation of spread of corona pandemic",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node script",
+    "dev": "nodemon script"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/snowsanta/corona_scrape.git"
+  },
+  "keywords": [
+    "corona",
+    "spread",
+    "visualization"
+  ],
+  "author": "snowsanta",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/snowsanta/corona_scrape/issues"
+  },
+  "homepage": "https://github.com/snowsanta/corona_scrape#readme",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.3",
+    "express": "^4.17.1",
+    "express-favicon": "^2.0.1",
+    "express-handlebars": "^4.0.0",
+    "request": "^2.88.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.2"
+  }
+}
